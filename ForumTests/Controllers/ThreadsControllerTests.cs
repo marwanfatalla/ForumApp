@@ -38,6 +38,36 @@ namespace ForumTests.Controllers
             Assert.Equal(expectedThreads, result.Value);
         }
 
+
+        [Fact]
+        public void GetById_ExistingThreads_ReturnsExpectedThread()
+        {
+            //Arrange
+            var expectedThread = GenerateThreads()[0];
+            serviceStub.Setup(service => service.GetThreadById("0")).Returns(expectedThread);
+            var controller = new ThreadsController(serviceStub.Object);
+            //Act
+            var result = controller.GetById("0");
+            //Assert
+            Assert.IsType<Thread>(result.Value);
+            Assert.Equal(expectedThread, result.Value);
+        }
+
+        [Fact]
+        public void GetById_UnexistingThreads_ReturnsExpectedThread()
+        {
+            //Arrange
+            var expectedThread = GenerateThreads()[0];
+            serviceStub.Setup(service => service.GetThreadById("7")).Returns(new ForumAPI.Entities.Thread());
+            var controller = new ThreadsController(serviceStub.Object);
+            //Act
+            var result = controller.GetById("7");
+            //Assert
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+
+
         public List<Thread> GenerateThreads()
         {
             var programmingPosts = new List<Post>

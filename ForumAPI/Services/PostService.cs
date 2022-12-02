@@ -1,30 +1,31 @@
-﻿using ForumAPI.Entities;
+﻿using ForumAPI.Dtos;
+using ForumAPI.Entities;
 using Microsoft.AspNetCore.Server.IIS.Core;
 
 namespace ForumAPI.Services
 {
     public class PostService :IPostService
     {
-        public Post CreatePost(Post post)
+        public Post CreatePost(CreatePostDto post)
         {
             if(post == null)
             {
-                return null;
+                throw new NullReferenceException();
             }
-            if (ContainsBannedWords(post)){
+            if (!ContainsBannedWords(post.Body, post.Title)){
                 throw new ArgumentException("Body or Title have bad words");
             }
-            var newPost = new Post { Id= post.Id, Body=post.Body, Category=post.Category, ImageURL=post.ImageURL, Title=post.Title, Username= post.Username };
+            var newPost = new Post { Id= Guid.NewGuid(), Body=post.Body, Category=post.Category, ImageURL=post.ImageURL, Title=post.Title, Username= post.Username };
             return newPost;
         }
 
-        public bool ContainsBannedWords(Post post)
+        public bool ContainsBannedWords(string body, string title)
         {
             var bannedWords = new List<string> { "Frick", "Crap", "Damn" };
             bool doesNotContainBannedWord = true;
             bannedWords.ForEach(word =>
             {
-                if (post.Body.Contains(word) || post.Title.Contains(word))
+                if (body.Contains(word) || title.Contains(word))
                 {
                     doesNotContainBannedWord=false;
                 }
